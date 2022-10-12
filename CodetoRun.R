@@ -30,8 +30,7 @@ library(tidyr)
 library(here)
 
 #where to save data
-saving_directory <- "C:/Users/dnewby/Desktop/UKBB/Analysis/Isolated_bp/Updated_Analysis/"
-
+saving_directory <- here::here("Github", "IsolatedBP_UKBiobank", "DataOutputs")
 
 #FUNCTIONS
 
