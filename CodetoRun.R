@@ -135,7 +135,6 @@ model_IH <- function(
 
 
 #for analysis with 6 categories
-
 model_IH_all <- function(
     outcome,
     exposure,
@@ -197,7 +196,9 @@ model_IH_all <- function(
 
 
 
+#source(here("Github","IsolatedBP_UKBiobank", "CleaningData.R"))
 
+#source(here("Github","IsolatedBP_UKBiobank", "RunStudy.R"))
 
 
 
