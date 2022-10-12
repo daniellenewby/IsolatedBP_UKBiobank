@@ -32,6 +32,9 @@ library(here)
 #where to save data
 saving_directory <- here::here("Github", "IsolatedBP_UKBiobank", "DataOutputs")
 
+ReadInDataAndClean <- TRUE # if already read in data and cleaned it put TRUE if not put false
+
+
 #FUNCTIONS
 
 # Gets the populations of people with the diseases listed in codes_jD
