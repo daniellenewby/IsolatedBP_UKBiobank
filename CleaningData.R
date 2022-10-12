@@ -95,7 +95,7 @@ names(brain_imaging_rawdata1)[names(brain_imaging_rawdata1) == "53-2.0"] <- "Dat
 
 setDTthreads(0L)
 
-bd <- fread("C:/Users/dnewby/Desktop/UKBB/ukb41533.csv", header=TRUE, nrows = 0)
+bd <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb41533.csv"), header=TRUE, nrows = 0)
 
 
 # get column names for imaging
@@ -116,14 +116,10 @@ bdtest3 <- unique(grep(paste(colwewant, collapse ="|"),
 
 tic()
 
-scanner_position_brain_imaging <- fread("C:/Users/dnewby/Desktop/UKBB/ukb41533.csv", 
+scanner_position_brain_imaging <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb41533.csv"), 
                                         header=TRUE, 
                                         sep=",", 
                                         verbose = T,
-                                        #fill = FALSE ,
-                                        #quote = "",
-                                        #nrows = 1000 ,
-                                        #nrows = 502507,
                                         select = bdtest3)
 
 toc()          
@@ -145,13 +141,9 @@ scanner_position_brain_imaging <- subset(scanner_position_brain_imaging, scanner
 ### white matter hypertensities ###
 ###################################
 
-###################################################################
-# AND hippocampal free surfer whole, body, head and tail
-##################################################################
-
 setDTthreads(0L)
 
-bd <- fread("C:/Users/dnewby/Desktop/UKBB/ukb41321.csv", header=TRUE, nrows = 0)
+bd <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb41321.csv"), header=TRUE, nrows = 0)
 
 
 # get column names for imaging
@@ -159,8 +151,7 @@ bdtest <- bd[,grep("[0-9]{1,10}\\-[2]\\.[0-9]|[a-z]{1,3}", colnames(bd), value =
 
 colwewant <- c("eid",   ## id
                "^25781\\-"  # white matter hyperintensity,
-               
-            )
+              )
 
 
 bdtest3 <- unique(grep(paste(colwewant, collapse ="|"),
@@ -169,7 +160,7 @@ bdtest3 <- unique(grep(paste(colwewant, collapse ="|"),
 
 tic()
 
-brain_imaging_rawdata_WMH <- fread("C:/Users/dnewby/Desktop/UKBB/ukb41321.csv", 
+brain_imaging_rawdata_WMH <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb41321.csv"), 
                                    header=TRUE, 
                                    sep=",", 
                                    verbose = T,
@@ -183,16 +174,12 @@ brain_imaging_rawdata_WMH1 <- subset(brain_imaging_rawdata_WMH, brain_imaging_ra
 names(brain_imaging_rawdata_WMH1)[names(brain_imaging_rawdata_WMH1) == "25781-2.0"] <- "f.25781_WMH"
 
 
-
-
-
-
 # merge brain imaging data together
 Brain_imaging_subset <- merge(brain_imaging_rawdata1, brain_imaging_rawdata_WMH1,  by = "eid")
 Brain_imaging_subset <- merge(Brain_imaging_subset, scanner_position_brain_imaging,  by = "eid")
 
 
-save(Brain_imaging_subset, file = paste(saving_directory, "brain_imaging_compiled_13122020.Rdata", sep=""))
+save(Brain_imaging_subset, file = paste(saving_directory, "/brain_imaging_compiled_13122020.Rdata", sep=""))
 
 
 
