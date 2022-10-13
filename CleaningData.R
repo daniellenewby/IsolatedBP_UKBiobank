@@ -1,5 +1,5 @@
 
-# READING IN ALL DATA FOR ANALYSIS AND CLEANING
+# READING IN ALL DATA FOR ANALYSIS AND CLEANING DATA VARIABLES
 
 setDTthreads(0L)
 
@@ -7,8 +7,6 @@ bd <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb40537.csv
   
 # get column names for imaging
 bdtest <- bd[,grep("[0-9]{1,10}\\-[2]\\.[0-9]|[a-z]{1,3}", colnames(bd), value = TRUE ), ]
-
-# we are interested in Category 110 Brain MRI imaging from T1 structural brain MRI
 
 ##########################################################################
 # BRAIN IMAGING VARIABLES #
@@ -235,8 +233,6 @@ demographics_cog_rawdata <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", 
 
 toc()
 
-
-
 #subset to those that have imaging data
 demographics_cog_rawdata1 <- subset(demographics_cog_rawdata, demographics_cog_rawdata$eid %in% Brain_imaging_subset$eid)
 
@@ -248,15 +244,13 @@ demographics_cog_rawdata1 <- subset(demographics_cog_rawdata, demographics_cog_r
 # trail making, matrix and digits
 
 setDTthreads(0L)
-
-bd <- fread("C:/Users/dnewby/Desktop/UKBB/ukb43218.csv", header=TRUE, nrows = 0)
+bd <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb43218.csv"), header=TRUE, nrows = 0)
 
 # get column names for imaging
-#
-#  #get column names for imaging
+
 bdtest2a <- bd[,grep("[0-9]{1,10}\\-[0|1|2]\\.[0-9]|[a-z]{1,3}", colnames(bd), value = TRUE ), ]
-# #
-# # # to select the columns we need
+
+# select the columns we need
 colwewant1 <- c("eid",   ## id
                 "^6348\\-2",         ## Duration to complete numeric path (trail #1)
                 "^6350\\-2",         ## Duration to complete numeric path (trail #2)
@@ -272,31 +266,21 @@ bdtest4a <- unique(grep(paste(colwewant1, collapse ="|"),
 
 
 tic()
-# # read in dataset takes nearly 1 hour (might be less now removed columns we dont need)
-extra_cog_rawdata <- fread("C:/Users/dnewby/Desktop/UKBB/ukb43218.csv",
+# read in dataset 
+extra_cog_rawdata <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb43218.csv"), 
                            header=TRUE,
                            sep=",",
                            verbose = T,
                            select = bdtest4a)
 
 toc()
-# 
-# 
-# 
-
-
 
 newcogtests_rawdata <- subset(extra_cog_rawdata, extra_cog_rawdata$eid %in% Brain_imaging_subset$eid)
 
 names(newcogtests_rawdata)[names(newcogtests_rawdata) == "6348-2.0" ] <- "f6348_Duration_trailA"
-
 names(newcogtests_rawdata)[names(newcogtests_rawdata) == "6350-2.0" ] <- "f6350_Duration_trailB" 
-
 names(newcogtests_rawdata)[names(newcogtests_rawdata) == "6373-2.0" ] <- "f6373_matrix_pattern_puzzles_solved" 
-
 names(newcogtests_rawdata)[names(newcogtests_rawdata) == "23324-2.0" ] <- "f23324_correct_symbol_digit_matches" 
-
-
 
 #####################################
 # tower rearranging
@@ -304,21 +288,16 @@ names(newcogtests_rawdata)[names(newcogtests_rawdata) == "23324-2.0" ] <- "f2332
 
 setDTthreads(0L)
 
-
-bd <- fread("C:/Users/dnewby/Desktop/UKBB/ukb43579.csv", header=TRUE, nrows = 0)
+bd <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb43579.csv"), header=TRUE, nrows = 0)
 
 # get column names for imaging
-#
-#  #get column names for imaging
 bdtest2ab <- bd[,grep("[0-9]{1,10}\\-[0|1|2]\\.[0-9]|[a-z]{1,3}", colnames(bd), value = TRUE ), ]
-# #
-# # # to select the columns we need
-colwewant8 <- c("eid",   ## id        ## Duration to complete numeric path (trail #1)
+
+# to select the columns we need
+colwewant8 <- c("eid",   ## id      
                 "21004\\-2"      ## Number of puzzles correctly solved (tower)
                 
-                
 )
-
 
 bdtest4ab <- unique(grep(paste(colwewant8, collapse ="|"),
                          bdtest2ab, value = TRUE, fixed = FALSE
@@ -326,32 +305,105 @@ bdtest4ab <- unique(grep(paste(colwewant8, collapse ="|"),
 
 
 tic()
-# # read in dataset takes nearly 1 hour (might be less now removed columns we dont need)
-extra_cog_tower_rawdata <- fread("C:/Users/dnewby/Desktop/UKBB/ukb43579.csv",
+# read in dataset 
+extra_cog_tower_rawdata <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb43579.csv"), 
                                  header=TRUE,
                                  sep=",",
                                  verbose = T,
                                  select = bdtest4ab)
 
 toc()
-# 
-# 
-# 
-
-
 
 newcogtests_tower_rawdata <- subset(extra_cog_tower_rawdata , extra_cog_tower_rawdata$eid %in% Brain_imaging_subset$eid)
 
 names(newcogtests_tower_rawdata)[names(newcogtests_tower_rawdata) == "21004-2.0" ] <- "21004_correct_tower_arranging"
-# 
+
+###############################
+# first occurence data
+setDTthreads(0L)
+
+bd <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb41117.csv"), header=TRUE, nrows = 0)
+
+# get column names for imaging
+bdtest <- bd[,grep("[0-9]{1,10}\\-[0]\\.[0-9]|[a-z]{1,3}", colnames(bd), value = TRUE ), ]
+
+##########################################################################
+# first occurrence for diabetes
+###########################################################################
+
+colwewant <- c("eid",   ## id
+               "^130706\\-" ,	#Date E10 first reported (insulin-dependent diabetes mellitus)
+               "^130707\\-" ,	#Source of report of E10 (insulin-dependent diabetes mellitus)
+               "^130708\\-" ,	#Date E11 first reported (non-insulin-dependent diabetes mellitus)
+               "^130709\\-" ,	#Source of report of E11 (non-insulin-dependent diabetes mellitus)
+               "^130710\\-" ,	#Date E12 first reported (malnutrition-related diabetes mellitus)
+               "^130711\\-" ,	#Source of report of E12 (malnutrition-related diabetes mellitus)
+               "^130712\\-" ,	#Date E13 first reported (other specified diabetes mellitus)
+               "^130713\\-" ,	#Source of report of E13 (other specified diabetes mellitus)
+               "^130714\\-" ,	#Date E14 first reported (unspecified diabetes mellitus)
+               "^130715\\-" 	#Source of report of E14 (unspecified diabetes mellitus)
+)
 
 
+bdtest3 <- unique(grep(paste(colwewant, collapse ="|"),
+                       bdtest, value = TRUE, fixed = FALSE ))
 
+tic()
 
-#
+first_occurence_rawdata <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb41117.csv"), 
+                                 header=TRUE, 
+                                 sep=",", 
+                                 verbose = T,
+                                 select = bdtest3)
+
+toc()   
+
+first_occurence_rawdata <- subset(first_occurence_rawdata, first_occurence_rawdata$eid %in% Brain_imaging_subset$eid)
+
+# remove dates that have these codes
+# 1901-01-01	Code has event date before participant's date of birth
+# 1902-02-02	Code has event date matching participant's date of birth
+# 1903-03-03	Code has event date after participant's date of birth and falls in the same calendar year as date of birth
+# 2037-07-07	Code has event date in the future and is presumed to be a place-holder or other system default
+
+first_occurence_rawdata[first_occurence_rawdata == "1901-01-01"] <- NA
+first_occurence_rawdata[first_occurence_rawdata == "1902-02-02"] <- NA
+first_occurence_rawdata[first_occurence_rawdata == "1903-03-03"] <- NA
+first_occurence_rawdata[first_occurence_rawdata == "2037-07-07"] <- NA
+
+#rename the variables
+#Date E10 first reported (insulin-dependent diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130706-0.0" ] <- "f130706-0-0_Date_insulin_dependentDM"
+#Source of report of E10 (insulin-dependent diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130707-0.0" ] <- "f130707-0-0_source__insulin_dependentDM"
+
+#Date E11 first reported (non insulin-dependent diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130708-0.0" ] <- "f130708-0-0_Date_noninsulin_dependentDM"
+#Source of report of E11 (non insulin-dependent diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130709-0.0" ] <- "f130709-0-0_source_noninsulin_dependentDM"
+
+#Date E12 first reported (malnutrition-related diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130710-0.0" ] <- "f130710-0-0_Date_malnutrition_dependentDM"
+#Source of report of E12 (malnutrition-related diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130711-0.0" ] <- "f130711-0-0_source_malnutrition_dependentDM"
+
+#Date E13 first reported (other specified diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130712-0.0" ] <- "f130712-0-0_Date_other_specifiedDM"
+#Source of report of E13 (other specified diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130713-0.0" ] <- "f130713-0-0_source_other_specifiedDM"
+
+#Date E14 first reported (unspecified diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130714-0.0" ] <- "f130714-0-0_Date_unspecified_DM"
+#Source of report of E14 (unspecified diabetes mellitus)
+names(first_occurence_rawdata)[names(first_occurence_rawdata) == "130715-0.0" ] <- "f130715-0-0_source_unspecified_DM"
+
+save(first_occurence_rawdata, file = paste(saving_directory, "/first_occurence_subset_compiled_13122020.Rdata", sep=""))
+
+#################
+# DATA CLEANING #
 #############################################################################################
 # in this section we are extracting the number of people taking bp meds, diabetics etc
-# subset the data you need 6177############################################################
+# 6177 FOR MALES ############################################################
 
 demographics_cog_rawdata2 <- demographics_cog_rawdata1[,c("6177-2.0" ,
                                                           "6177-2.1" ,
@@ -363,15 +415,12 @@ diseases_UKBB <- unique(c(as.matrix(demographics_cog_rawdata2[,paste("6177-2.",c
 diseases_UKBB <- diseases_UKBB[!is.na(diseases_UKBB)]
 stopifnot(length(diseases_UKBB) == 6)
 # 
-# # this takes ages!!
+
 # # Using function over disease columns create a boolean matrix for each cancer disease for each subject in UKBB
 bCase_iSiD_diseases = findCases( diseases_UKBB , demographics_cog_rawdata2[,paste("6177-2.",c(0:2),sep="")])
-
-
 colnames(bCase_iSiD_diseases) <- diseases_UKBB
-dim(bCase_iSiD_diseases) # should be xx diseases
+#dim(bCase_iSiD_diseases) # should be 6 diseases
 rownames(bCase_iSiD_diseases) <- demographics_cog_rawdata1$eid
-
 
 # turn into a integer matrix
 bCase_iSiD_diseases <- 1 * bCase_iSiD_diseases
@@ -387,12 +436,10 @@ colnames(bCase_iSiD_diseases) <- c("High_chol_M",
 )
 
 
-
-
 #################################################################################################
 #############################################################################################
 # in this section we are extracting the number of people taking bp meds, diabetics etc
-# subset the data you need 6177############################################################
+#  6153 FEMALES ############################################################
 
 demographics_cog_rawdata2a <- demographics_cog_rawdata1[,c("6153-2.0" ,
                                                            "6153-2.1" ,
@@ -400,17 +447,16 @@ demographics_cog_rawdata2a <- demographics_cog_rawdata1[,c("6153-2.0" ,
 
 
 diseases_UKBBa <- unique(c(as.matrix(demographics_cog_rawdata2a[,paste("6153-2.",c(0:2),sep="")])))
-# 
+
 diseases_UKBBa <- diseases_UKBBa[!is.na(diseases_UKBBa)]
 stopifnot(length(diseases_UKBBa) == 8)
-# 
-# # this takes ages!!
+
 # # Using function over disease columns create a boolean matrix for each cancer disease for each subject in UKBB
 bCase_iSiD_diseasesa = findCases( diseases_UKBBa , demographics_cog_rawdata2a[,paste("6153-2.",c(0:2),sep="")])
 
 
 colnames(bCase_iSiD_diseasesa) <- diseases_UKBBa
-dim(bCase_iSiD_diseasesa) # should be xx diseases
+#dim(bCase_iSiD_diseasesa) # should be 8 diseases
 rownames(bCase_iSiD_diseasesa) <- demographics_cog_rawdata1$eid
 
 
@@ -428,15 +474,13 @@ colnames(bCase_iSiD_diseasesa) <- c("High_chol_F",
 )
 
 
-
 # join the two together
-
 bCase_iSiD_diseases_both <- cbind(bCase_iSiD_diseases,
                                   bCase_iSiD_diseasesa)
 
 bCase_iSiD_diseases_both <- as.data.frame(bCase_iSiD_diseases_both)
 
-
+#sum up BP meds, chol mes and insulin meds
 bCase_iSiD_diseases_both$BP_medications <- bCase_iSiD_diseases_both$BP_medications_M + bCase_iSiD_diseases_both$BP_medications_F
 
 bCase_iSiD_diseases_both$Cholesterol_medications <- bCase_iSiD_diseases_both$High_chol_M + bCase_iSiD_diseases_both$High_chol_F
@@ -445,24 +489,344 @@ bCase_iSiD_diseases_both$Insulin_medications <- bCase_iSiD_diseases_both$Insulin
 
 bCase_iSiD_diseases_both$eid <- rownames(bCase_iSiD_diseases_both)
 
-#susbet this
 
+#susbet this to include combined male and female
 bCase_iSiD_diseases_both <- bCase_iSiD_diseases_both[,7:10]
-
 bCase_iSiD_diseases_both$eid <- as.integer(bCase_iSiD_diseases_both$eid)
-
 
 
 #############################################################################
 #merge back into cognitive tests and demographics 
 Cognition_demographics_subset <- merge(newcogtests_tower_rawdata,  newcogtests_rawdata,  by = "eid")
-
 Cognition_demographics_subset <- merge(Cognition_demographics_subset, demographics_cog_rawdata1,  by = "eid")
-
 Cognition_demographics_subset <- merge(Cognition_demographics_subset,  bCase_iSiD_diseases_both,  by = "eid")
 
 
-save(Cognition_demographics_subset, file = paste(saving_directory, "Cognition_demographics_subset_compiled_13122020.Rdata", sep=""))
+# add in the rest of the data cleaning here
+save(Cognition_demographics_subset, file = paste(saving_directory, "/Cognition_demographics_subset_compiled_13122020.Rdata", sep=""))
+
+
+##############################################################################
+# cleaning the cognitive and demographics 
+##############################################################################
+rawdata <- Cognition_demographics_subset
+
+##########
+# ID #
+##########
+rownames(rawdata) <- rawdata$eid
+
+
+##########
+# GENDER #
+##########
+rawdata$`31-0.0` <- ifelse(rawdata$`31-0.0` == 0, "Female", "Male")
+names(rawdata)[names(rawdata) == "31-0.0"] <- "Gender"
+rawdata$Gender <- as.factor(rawdata$Gender) # create a factor
+stopifnot(is.factor(rawdata$Gender))
+
+
+######################
+# AGE OF ASSESSMENT # 
+######################
+names(rawdata)[names(rawdata) == "21003-2.0"] <- "Age_at_assessment"
+
+
+##########################
+# UKBB ASSESSMENT CENTRE #
+##########################
+names(rawdata)[names(rawdata) == "54-2.0"] <- "UKBB_centre"
+rawdata$UKBB_centre <- as.factor(rawdata$UKBB_centre)
+stopifnot(is.factor(rawdata$UKBB_centre))
+
+
+###############################################
+# smoking status                 ##############
+###############################################
+names(rawdata)[names(rawdata) == "20116-2.0"] <- "smoking_status"
+
+rawdata$smoking_status[ rawdata$smoking_status == -3 ] = NA
+rawdata$smoking_status[ rawdata$smoking_status == 2 ] = 1 # changes smoking status to never versus pervious and current categorical bin
+
+rawdata$smoking_status <- factor(rawdata$smoking_status)
+
+
+####################################################
+# town and deprivation index
+####################################################
+
+names(rawdata)[names(rawdata) == "189-0.0"] <- "deprivation_index"
+
+#greater the value the greater the deprivation # 
+
+#split townsend into deciles
+
+rawdata$Townsend_deciles <- quantcut(rawdata$deprivation_index , q = 10, na.rm=TRUE)
+
+rawdata$Townsend_deciles <- as.numeric(rawdata$Townsend_deciles)
+
+
+##########################
+# educational attainment #
+##########################
+
+# As with publication Hagenaars et al 2016 converted education in a binary variable
+# 0 = do not have college/uni degree OR 1 = those that have a uni degree
+names(rawdata)[names(rawdata) == "6138-2.0"] <- "Education"
+
+# there are multiple columns as people could specifiy multiple levels of education
+rawdata$Education[ rawdata$Education == -3 ] = NA
+rawdata$Education[ rawdata$Education == -7 ] = 7
+rawdata$Education <- ifelse(rawdata$Education == 1, 1, 0)
+
+# remove other educational variables as we no longer need these
+
+rawdata <- subset( rawdata, 
+                   select = -c(`6138-2.1` , 
+                               `6138-2.2` , 
+                               `6138-2.3` ,
+                               `6138-2.4` , 
+                               `6138-2.5`
+                   ) )
+
+
+
+######################################
+# age high bp diagnosed ############ 
+####################################
+# collected from participants who indicated they were told by a doctor that they have had high blood pressure
+
+names(rawdata)[names(rawdata) == "2966-2.0"] <- "Age_highBP_diagnosed"
+rawdata$Age_highBP_diagnosed[ rawdata$Age_highBP_diagnosed == -3 ] = NA
+
+
+######################################
+# age diabetes diagnosed ############ 
+####################################
+# collected from participants who indicated they were told by a doctor they had diabetes
+
+names(rawdata)[names(rawdata) == "2976-2.0"] <- "Age_diabetes_diagnosed"
+rawdata$Age_diabetes_diagnosed[ rawdata$Age_diabetes_diagnosed == -3 ] = NA
+
+
+######################################
+# diabetes diagnosed by a doctor ### 
+####################################
+# collected from participants who indicated they were told by a doctor that they have had high blood pressure
+
+names(rawdata)[names(rawdata) == "2443-2.0"] <- "Diabetes_diagnosed_doctor"
+
+rawdata$Diabetes_diagnosed_doctor[ rawdata$Diabetes_diagnosed_doctor == -3 ] = NA
+rawdata$Diabetes_diagnosed_doctor[ rawdata$Diabetes_diagnosed_doctor == -1 ] = NA
+
+
+######################################
+# automated blood pressure ############ 
+####################################
+# The individal measures will be kept as well as the average dys and sys calculated
+names(rawdata)[names(rawdata) == "4079-2.0"] <- "Diastolic_bp_1"
+names(rawdata)[names(rawdata) == "4079-2.1"] <- "Diastolic_bp_2"
+
+rawdata$Diastolic_bp_average <- rowMeans(rawdata[, c("Diastolic_bp_1","Diastolic_bp_2")
+], na.rm = TRUE )
+
+names(rawdata)[names(rawdata) == "4080-2.0"] <- "Systolic_bp_1"
+names(rawdata)[names(rawdata) == "4080-2.1"] <- "Systolic_bp_2"
+
+
+rawdata$Systolic_bp_average <- rowMeans(rawdata[, c("Systolic_bp_1", "Systolic_bp_2") ], na.rm = TRUE
+)
+
+rawdata$Systolic_bp_average[rawdata$Systolic_bp_average == "NaN"] <- NA
+rawdata$Diastolic_bp_average[rawdata$Diastolic_bp_average == "NaN"] <- NA
+
+
+###########################################
+# memory pairs matching round 2 - 6 pairs #
+###########################################
+names(rawdata)[names(rawdata) == "399-2.2"] <- "f.399.2.2_Memory_pm_6pairs"
+# if any subject has > 30 errors this was capped at 30 as with Hagenaars et al 2016 paper
+rawdata$f.399.2.2_Memory_pm_6pairs[rawdata$f.399.2.2_Memory_pm_6pairs > 30.99 ] <- 30
+# check that there are no values > 30 for this variable
+z <- rawdata$f.399.2.2_Memory_pm_6pairs > 30.99
+stopifnot(sum(z, na.rm=TRUE) == 0)
+
+#remove other memory scores variables from other rounds
+rawdata <- subset( rawdata, 
+                   select = -c(`399-2.1` , 
+                               `399-2.3`
+                   ) )
+
+
+############################################################
+# TIME TO COMPLETE memory pairs matching round 2 - 6 pairs #
+############################################################
+names(rawdata)[names(rawdata) == "400-2.2"] <- "f.400.2.2_Memory_pm_6pairs_TIME"
+
+#remove other memory scores variables from other rounds
+rawdata <- subset( rawdata, 
+                   select = -c(`400-2.1` , 
+                               `400-2.3`
+                   ) )
+
+
+##############################################################################
+# Number of correct matches in round memory pairs matching round 2 - 6 pairs #
+##############################################################################
+# if this does not equal 6 then the person did not complete the test therefore replace with NA
+names(rawdata)[names(rawdata) == "398-2.2"] <- "f.398.2.2_Memory_pm_6pairs_nMATCHES"
+
+#remove other memory scores variables from other rounds
+rawdata <- subset( rawdata,
+                   select = -c(`398-2.1` ,
+                               `398-2.3`
+                   ) )
+
+
+#################################################################################################
+# # replacing those who did not complete pairs matching due to time to complete test set at zero
+#################################################################################################
+
+# some ppts failed to complete test however this was set to 0 for pairs matching
+# if time to undertake pairs matching was 0 we made the memory pairs matching results NA
+
+# replace pairs matching with a zero value with NA
+rawdata$f.400.2.2_Memory_pm_6pairs_TIME[rawdata$f.400.2.2_Memory_pm_6pairs_TIME == 0] <- NA
+
+# replace where people did not get all 6 matches with NA
+rawdata$f.398.2.2_Memory_pm_6pairs_nMATCHES[rawdata$f.398.2.2_Memory_pm_6pairs_nMATCHES < 6] <- NA
+
+# number of people not completing all 6 matches 
+#table(rawdata$f.398.2.2_Memory_pm_6pairs_nMATCHES == 6) ~1.75% didnt complete all 6
+
+#replace pairs matching with NA where NA for TIME to take test was zero
+rawdata$f.399.2.2_Memory_pm_6pairs = ifelse(is.na(rawdata$f.400.2.2_Memory_pm_6pairs_TIME), NA, rawdata$f.399.2.2_Memory_pm_6pairs)
+
+#replace pairs matching with NA where NA for n matches <6 indicating they didnt complete the test
+rawdata$f.399.2.2_Memory_pm_6pairs = ifelse(is.na(rawdata$f.398.2.2_Memory_pm_6pairs_nMATCHES), NA, rawdata$f.399.2.2_Memory_pm_6pairs)
+
+###########################################
+# Fluid intelligence #
+###########################################
+names(rawdata)[names(rawdata) == "20016-2.0"] <- "f.20016.2.0_fluid_intelligence"
+stopifnot(is.numeric(rawdata$f.20016.2.0_fluid_intelligence))
+
+###########################################
+# reaction time #
+###########################################
+names(rawdata)[names(rawdata) == "20023-2.0"] <- "f.20023.2.0_reaction_time"
+stopifnot(is.numeric(rawdata$f.20023.2.0_reaction_time))
+
+################################
+# ethnicity ##
+###################################
+names(rawdata)[names(rawdata) == "21000-2.0"] <- "Ethnicity"
+
+names(rawdata)[names(rawdata) == "21000-0.0"] <- "Ethnicity_baseline"
+
+rawdata$Ethnicity[ rawdata$Ethnicity == -3 ] = NA
+rawdata$Ethnicity[ rawdata$Ethnicity == -1 ] = NA
+
+rawdata$Ethnicity[ rawdata$Ethnicity == 1001 ] = 1
+rawdata$Ethnicity[ rawdata$Ethnicity == 1002 ] = 1
+rawdata$Ethnicity[ rawdata$Ethnicity == 1003 ] = 1
+
+rawdata$Ethnicity[ rawdata$Ethnicity > 1 ] = 0
+#missing alot of ethnicity in imaging visit but as ethnicity is crystallised can use from baseline
+
+
+rawdata$Ethnicity_baseline[ rawdata$Ethnicity_baseline == -3 ] = NA
+rawdata$Ethnicity_baseline[ rawdata$Ethnicity_baseline == -1 ] = NA
+
+rawdata$Ethnicity_baseline[ rawdata$Ethnicity_baseline == 1001 ] = 1
+rawdata$Ethnicity_baseline[ rawdata$Ethnicity_baseline == 1002 ] = 1
+rawdata$Ethnicity_baseline[ rawdata$Ethnicity_baseline == 1003 ] = 1
+
+rawdata$Ethnicity_baseline[ rawdata$Ethnicity_baseline > 1 ] = 0
+
+#replace ethnicity at wave 3 with baseline information (wont change over time and even if some misclassfication this will not effect the results greatly as majority of cohort is white)
+rawdata$Ethnicity <- rawdata$Ethnicity_baseline
+
+rawdata$Ethnicity[rawdata$Ethnicity_baseline == 1 & is.na(rawdata$Ethnicity)] <- 1
+rawdata$Ethnicity[rawdata$Ethnicity_baseline == 0 & is.na(rawdata$Ethnicity)] <- 0
+
+
+################################
+# BMI ##
+###################################
+names(rawdata)[names(rawdata) == "21001-2.0"] <- "BMI"
+
+
+###########################################
+# for trails makers A and B anyone with a value of 0 is set to missing i.e. NA
+#Those with a score coded as 0 (denoting "Trail not completed") had their score set to missing.
+
+#table(rawdata$f6348_Duration_trailA == 0)
+rawdata$f6348_Duration_trailA[ rawdata$f6348_Duration_trailA == 0 ] = NA
+
+#table(rawdata$f6350_Duration_trailB == 0)
+rawdata$f6350_Duration_trailB[ rawdata$f6350_Duration_trailB == 0 ] = NA
+
+rawdata$f6350_Duration_trailB[ rawdata$f6350_Duration_trailB >= 2500 ] = NA
+
+#########################################
+# creating a cogntive test measure which takes TMT from TMTa
+rawdata$TMTB_MINUS_TMTA <- rawdata$f6350_Duration_trailB - rawdata$f6348_Duration_trailA
+
+rawdata$TMTB_MINUS_TMTA[rawdata$TMTB_MINUS_TMTA < 0 ] <- NA
+
+rawdata$TMTB_MINUS_TMTA[rawdata$TMTB_MINUS_TMTA > 1500 ] <- NA
+
+
+#########################################
+#remove columns we dont need
+
+rawdata_cog <- subset( rawdata,
+                       select = -c(Ethnicity_baseline,
+                                   f.398.2.2_Memory_pm_6pairs_nMATCHES,
+                                   f.400.2.2_Memory_pm_6pairs_TIME,
+                                   Ethnicity_baseline,
+                                   `6153-2.0`,
+                                   `6153-2.1`,                                  
+                                   `6153-2.2` ,
+                                   `6153-2.3`  ,                              
+                                   `6177-2.0` ,
+                                   `6177-2.1`  ,                               
+                                   `6177-2.2`
+                       )
+)
+
+Cognition_demographics_subset_CLEANED <- rawdata_cog
+
+save(Cognition_demographics_subset_CLEANED, file = paste(saving_directory, "/CLEANED_cog_demo_imaging_people_only_131220.Rdata", sep=""))
+
+
+# MERGE ALL THE DATASETS TOGETHER
+
+Full_dataset_v1 <- merge(Brain_imaging_subset, Cognition_demographics_subset_CLEANED,  by = "eid")
+
+Full_dataset_v1 <- merge(Full_dataset_v1, first_occurence_rawdata,  by = "eid", all = T)
+
+# only include people with blood pressure for second reading
+Full_dataset_v1 <- subset(Full_dataset_v1, !is.na(Full_dataset_v1$Systolic_bp_2) & !is.na(Full_dataset_v1$Diastolic_bp_2))
+# goes down to 31249
+
+
+# remove people who have who have withdrawn
+withdrawnlist <- paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data", "/w43309_20210201.csv"))
+
+withdrawn <- read.table(withdrawnlist, sep = ",", header = FALSE)
+
+withdrawn <- withdrawn$V1
+
+#subset out of main database
+Full_dataset_v1 <- subset(Full_dataset_v1, !(Full_dataset_v1$eid %in% withdrawn) )
+
+save(Full_dataset_v1, file = paste(saving_directory, "/Full_dataset_13122020_v1.Rdata", sep=""))
+
+
+
+
 
 
 
