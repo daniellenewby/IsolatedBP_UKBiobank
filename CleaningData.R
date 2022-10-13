@@ -506,6 +506,262 @@ Cognition_demographics_subset <- merge(Cognition_demographics_subset,  bCase_iSi
 save(Cognition_demographics_subset, file = paste(saving_directory, "/Cognition_demographics_subset_compiled_13122020.Rdata", sep=""))
 
 
+# Reading  in the self reported diseases from UKBB
+# In this we will extract:
+# 1) the self reported measures that will be used for the confounders
+# 2) self reported measures for exclusion criteria for excluding people with neurological conditions at imaging visit
+
+# setDTthreads(0L)
+# 
+# bd <- fread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb40537.csv"), header=TRUE, nrows = 0)
+# 
+# bdtest <- bd[,grep("[0-9]{1,10}\\-[0|2]\\.[0-9]|[a-z]{1,3}", colnames(bd), value = TRUE ), ]
+# 
+# # to select the columns we need
+# colwewant2 <- c("eid",   ## id
+#                   "20002\\-2"   # ,     ## non illness code self reported
+# 
+# 
+# )
+# 
+# bdtest5 <- unique(grep(paste(colwewant2, collapse ="|"),
+#                        bdtest, value = TRUE, fixed = FALSE
+# ))
+# 
+# tic()
+# 
+# # read in dataset 
+# self_reported_disease <- ffread(paste0(here("GitHub", "IsolatedBP_UKBiobank", "Data"),"/ukb40537.csv"), 
+#                                header=TRUE,
+#                                sep=",",
+#                               verbose = T,
+#                                select = bdtest5)
+# 
+# toc()
+# 
+# 
+# 
+# #subset to those that have imaging data
+# self_reported_disease1 <- subset(self_reported_disease, self_reported_disease$eid %in% Brain_imaging_subset$eid)
+# 
+# 
+# # # ##################################################################################
+# # # this next part of the code take the self diagnosed information and converts it into a single column for each disease saying y or n if a person has reported that diagnosis
+# #
+# self_reported_disease2 <- self_reported_disease1[,c(35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)]
+# 
+# diseases_UKBB <- unique(c(as.matrix(self_reported_disease2[,paste("20002-2.",c(0:33),sep="")])))
+# 
+# diseases_UKBB <- diseases_UKBB[!is.na(diseases_UKBB)]
+# stopifnot(length(diseases_UKBB) == 435 )
+# 
+# # # # this takes ages!!
+# # # # Using function over disease columns create a boolean matrix for each cancer disease for each subject in UKBB
+# bCase_iSiD_diseases = findCases( diseases_UKBB ,self_reported_disease2[,paste("20002-2.",c(0:33),sep="")])
+# 
+# colnames(bCase_iSiD_diseases) <- diseases_UKBB
+# dim(bCase_iSiD_diseases) # should be 435 diseases
+# rownames(bCase_iSiD_diseases) <- self_reported_disease2$eid
+
+# # #save the matrix for all diseases for all subjects and save output (can use columns for certain diseases at a later date)
+#save(bCase_iSiD_diseases, file = paste(saving_directory, "/self_diagnosed_disease20002_for_imaging_visit_20102020.Rdata", sep=""))
+load(file = paste(saving_directory, "/self_diagnosed_disease20002_for_imaging_visit_20102020.Rdata", sep=""))
+
+bCase_iSiD_diseases <- as.data.frame(bCase_iSiD_diseases)
+
+bCase_iSiD_diseases1 <- 1 * bCase_iSiD_diseases # to turn from true/false to 0 and 1
+
+rm(bCase_iSiD_diseases)
+
+hypertension <- bCase_iSiD_diseases1$`1065` + bCase_iSiD_diseases1$`1072`
+
+hypertension[hypertension == 2 ] <- 1
+
+# diabetes
+diabetes <-  bCase_iSiD_diseases1$`1220` + bCase_iSiD_diseases1$`1222` + bCase_iSiD_diseases1$`1223` 
+
+diabetes[diabetes == 2 ] <- 1
+
+# renal disease
+renal_disease <-   bCase_iSiD_diseases1$`1519` + bCase_iSiD_diseases1$`1192` + bCase_iSiD_diseases1$`1193` + bCase_iSiD_diseases1$`1194`
+
+# history of coronary heart disease symptoms
+his_coronary_heart_disease_symptoms <- bCase_iSiD_diseases1$`1075` + bCase_iSiD_diseases1$`1074` + 
+  bCase_iSiD_diseases1$`1076` 
+
+his_coronary_heart_disease_symptoms[his_coronary_heart_disease_symptoms == 2 ] <- 1
+
+# atrial fibulation/atrial flutter
+Atrial_fibrillation <- bCase_iSiD_diseases1$`1483` + bCase_iSiD_diseases1$`1471`
+
+Atrial_fibrillation[Atrial_fibrillation == 2 ] <- 1
+
+# high cholesterol/ hypercholesterolemia
+high_chol <- bCase_iSiD_diseases1$`1473`
+
+#depression/depressive symptoms
+
+depression <- bCase_iSiD_diseases1$`1286` + bCase_iSiD_diseases1$`1291`
+depression[depression == 2 ] <- 1
+
+
+# extract confounders and additional variables
+
+self_reported_disease3 <- cbind(
+  
+  hypertension,
+  diabetes,
+  renal_disease,
+  his_coronary_heart_disease_symptoms,
+  Atrial_fibrillation,
+  high_chol,
+  depression
+  
+)
+
+rownames(self_reported_disease3) <- rownames(bCase_iSiD_diseases1)
+self_reported_disease3 <- as.data.frame(self_reported_disease3)
+self_reported_disease3$eid <- rownames(self_reported_disease3)
+self_reported_disease3$eid <- as.integer(self_reported_disease3$eid)
+
+
+############################################################
+# variables for exclusion criteria
+
+#Dementia or Alzheimer's disease	1263
+Dementia   <- bCase_iSiD_diseases1$`1263`
+
+#Parkinson's disease	1262
+PD<- bCase_iSiD_diseases1$`1262`
+
+#Chronic degenerative neurological 	1258
+Chronic_degenerative_neurological<- bCase_iSiD_diseases1$`1258`
+
+#Guillain-Barré syndrome	1256
+Guillain_Barre<- bCase_iSiD_diseases1$`1256`
+
+#Multiple Sclerosis	1261
+MS <- bCase_iSiD_diseases1$`1261`
+
+#Other demyelinating disease	1397
+Other_demyelinating_disease <- bCase_iSiD_diseases1$`1397`
+
+#Stroke or ischaemic stroke	1081
+stroke <- bCase_iSiD_diseases1$`1081`
+
+#Brain cancer	1032
+Brain_cancer <- bCase_iSiD_diseases1$`1032`
+
+#Brain haemorrhage 	1491
+Brain_haemorrhage <- bCase_iSiD_diseases1$`1491`
+
+#Brain/intracranial abscess	1245
+Brain_abscess<- bCase_iSiD_diseases1$`1245`
+
+#Cerebral aneurysm	1425
+Cerebral_aneurysm <- bCase_iSiD_diseases1$`1425`
+
+#Cerebral palsy	1433
+Cerebral_palsy <- bCase_iSiD_diseases1$`1433`
+
+#Encephalitis	1246
+Encephalitis <- bCase_iSiD_diseases1$`1246`
+
+#Epilepsy	1264
+Epilepsy <- bCase_iSiD_diseases1$`1264`
+
+#Head injury	1266
+Head_injury <- bCase_iSiD_diseases1$`1266`
+
+#Infections of the nervous system	1244
+Infections_nervous_system <- bCase_iSiD_diseases1$`1244`
+
+#Ischaemic stroke	1583
+Ischaemic_stroke <- bCase_iSiD_diseases1$`1583`
+
+#Meningeal cancer	1031
+Meningeal_cancer <- bCase_iSiD_diseases1$`1031`
+
+#Meningioma (benign)	1659
+Meningioma_benign <- bCase_iSiD_diseases1$`1659`
+
+#Meningitis	1247
+Meningitis <- bCase_iSiD_diseases1$`1247`
+
+#Motor Neuron Disease	1259
+Motor_Neuron_Disease <- bCase_iSiD_diseases1$`1259`
+
+#Neurological injury/trauma	1240
+Neurological_injury_trauma <- bCase_iSiD_diseases1$`1240`
+
+#Spina bifida	1524
+Spina_bifida <- bCase_iSiD_diseases1$`1524`
+
+#Subdural haematoma	1083
+Subdural_haematoma <- bCase_iSiD_diseases1$`1083`
+
+#Subarachnoid haemorrhage	1086
+Subarachnoid_haemorrhage <- bCase_iSiD_diseases1$`1086`
+
+#Transient ischaemic attack	1082
+Transient_ischaemic_attack <- bCase_iSiD_diseases1$`1082`
+
+
+########################################
+# put them into one dataframe
+########################################
+diseases_for_exclusion <- cbind(
+  
+  Dementia,
+  PD,
+  Chronic_degenerative_neurological,
+  Guillain_Barre,
+  MS ,
+  Other_demyelinating_disease ,
+  stroke,
+  Brain_cancer,
+  Brain_haemorrhage ,
+  Brain_abscess,
+  Cerebral_aneurysm ,
+  Cerebral_palsy ,
+  Encephalitis ,
+  Epilepsy ,
+  Head_injury ,
+  Infections_nervous_system ,
+  Ischaemic_stroke ,
+  Meningeal_cancer ,
+  Meningioma_benign ,
+  Meningitis ,
+  Motor_Neuron_Disease ,
+  Neurological_injury_trauma ,
+  Spina_bifida ,
+  Subdural_haematoma ,
+  Subarachnoid_haemorrhage ,
+  Transient_ischaemic_attack
+  
+)
+
+
+rownames(diseases_for_exclusion) <- rownames(bCase_iSiD_diseases1)
+
+diseases_for_exclusion <- as.data.frame(diseases_for_exclusion)
+
+# create variable to exlucde
+diseases_for_exclusion$people2exlcude <- rowSums(diseases_for_exclusion)
+
+diseases_for_exclusion$people2exlcude[diseases_for_exclusion$people2exlcude > 1] <- 1
+
+diseases_for_exclusion$eid <- rownames(diseases_for_exclusion)
+
+diseases_for_exclusion$eid <- as.integer(diseases_for_exclusion$eid)
+
+# merge into cognition/demographic file
+Cognition_demographics_subset <- merge(Cognition_demographics_subset, diseases_for_exclusion,  by = "eid")
+
+Cognition_demographics_subset <- merge(Cognition_demographics_subset,  self_reported_disease3,  by = "eid")
+
+save(Cognition_demographics_subset, file = paste(saving_directory, "/Cognition_demographics_subset_compiled_13122020.Rdata", sep=""))
+
 ##############################################################################
 # cleaning the cognitive and demographics 
 ##############################################################################
@@ -801,8 +1057,11 @@ Cognition_demographics_subset_CLEANED <- rawdata_cog
 save(Cognition_demographics_subset_CLEANED, file = paste(saving_directory, "/CLEANED_cog_demo_imaging_people_only_131220.Rdata", sep=""))
 
 
-# MERGE ALL THE DATASETS TOGETHER
 
+
+
+
+# MERGE ALL THE DATASETS TOGETHER
 Full_dataset_v1 <- merge(Brain_imaging_subset, Cognition_demographics_subset_CLEANED,  by = "eid")
 
 Full_dataset_v1 <- merge(Full_dataset_v1, first_occurence_rawdata,  by = "eid", all = T)
